@@ -217,9 +217,16 @@ var _ = { };
 
   // Return a function that can be called at most one time. Subsequent calls
   // should return the previously returned value.
+  //
+  // When chained to another function... for example...
+  //    var num = 0;
+  //    var increase = function() {num++;};
+  //    var increaseOnce = _.once(increase);
+  // increaseOnce has essentially forked a copy of _.once and _.once's scope.
+  // This is why the return copy can modify the variables ran and memo while still
+  // allowing _.once to be used/chained to other functions... the original instance
+  // of _.once is not getting modified, the forked copy is.
   _.once = function(func) {
-    // Don't understand memo = func.apply(this, arguments);
-    // Don't understand func = null;
     var ran = false;
     var memo;
     return function() {
@@ -240,7 +247,7 @@ var _ = { };
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-
+    var x
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -250,6 +257,7 @@ var _ = { };
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    return setTimeout(func('a', 'b'), wait) {};
   };
 
 
@@ -268,9 +276,12 @@ var _ = { };
   // If iterator is a string, sort objects by that property with the name
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
-  _.sortBy = function(collection, iterator) {
-
-  };
+  /*_.sortBy = function(collection, iterator) {
+    var sorted = [];
+    for (var i = 0; i < collection.length; i++) {
+        if (collection)
+    }
+  };*/
 
   // Zip together two or more arrays with elements of the same index
   // going together.
@@ -278,6 +289,81 @@ var _ = { };
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var outerArray = [];
+    var innerArray = [];
+    var length = 0;
+    for (var i = 0; i < arguments.length; i++) {
+        if (arguments[i].length > length) {
+            length = arguments[i].length;
+        }
+    }
+    for (var j = 0; j < length; j++) {
+        innerArray = [];
+        for (var k = 0; k < arguments.length; k++) {
+            innerArray.push(arguments[k][j]);
+        }
+        outerArray.push(innerArray);
+    }
+    return outerArray;
+
+
+    /*if (args.length === 2) {
+        var zipper = [];
+        var zipperLength = Math.max(args[0].length, args[1].length);
+        for (var i = 0; i < zipperLength; i++) {
+            zipper.push([args[0][i], args[1][i]]);
+        }
+        return zipper;
+    }
+    if (args.length === 3) {
+        var zipper = [];
+        var zipperLength = 0;
+        for (var i = 0; i < args.length; i++) {
+            if (args[i].length > zipLength) {
+                zipperLength = args[i].length;
+            }
+        }
+        for (var i = 0; i < zipperLength; i++) {
+            zipper.push([args[0][i], args[1][i], args[2][i]]);
+        }
+        return zipper;
+    }*/
+
+    /*var args = Array.prototype.slice.call(arguments);
+    var zipper = [];
+    var zipLength = 0;
+    for (var i = 0; i < args.length; i++) {
+        if (args[i].length > zipLength) {
+            zipLength = args[i].length;
+        }
+    }
+    var j = 0;
+    while (var j < zipLength) {
+        for (var k = 0; k < args.length; k++) {
+            zipper.push(args[k][j]);
+        }
+        j++;
+    }
+    var chunkyZipper = [];
+    while (zipper.length > 0) {
+        chunkyZipper.push(zipper.splice(0, args.length));
+    }
+    return chunkyZipper;*/
+
+    /*var args = Array.prototype.slice.call(arguments);
+    var zipperLength = 0;
+    var zipper = [];
+    for (var i = 0; i < args.length; i++) {
+        if (args[i].length > zipperLength) {
+            zipperLength = args[i].length;
+        }
+    }
+    for (var g = 0; g < zipperLength; g++) {
+        for (var t = 0; t < args.length; t++) {
+            zipper[g][t] = args[t][g];
+        }
+    }
+    return zipper;*/
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -301,11 +387,49 @@ var _ = { };
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    var args = Array.prototype.slice.call(arguments);
+    return args[0].filter(function(n) {
+        return args[1].indexOf(n) != -1;
+    });
+    /*var args = Array.prototype.slice.call(arguments);
+    var uniqArgs = [];
+    for (var prop in args) {
+        uniqArgs.push(_.uniq(prop));
+    }
+    var commonElements = uniqArgs[0].filter(function(val) {
+        var gate = 0;
+        for (var i = 1; i < uniqArgs.length; i++) {
+            for (var g = 0; g < uniqArgs[i].length; g++) {
+                if (args[i][g] === val) {
+                    gate = gate + 1;
+                }
+            }
+        }
+        if (gate === uniqArgs.length - 1) {
+            gate = 0;
+            return true;
+        }
+    });
+    return commonElements;*/
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+    var args = Array.prototype.slice.call(arguments);
+    for (var i = 0; i < args[0].length; i++) {
+        for (var g = 1; g < args.length; g++) {
+            for (var t = 0; t < args[g].length; t++) {
+                if (args[g][t] === args[0][i]) {
+                    args[0][i] = false;
+                }
+            }
+        }
+    }
+    var uniqArgsInFirstArray = args[0].filter(function(n) {
+        return Boolean(n);
+    })
+    return uniqArgsInFirstArray;
   };
 
 }).call(this);
