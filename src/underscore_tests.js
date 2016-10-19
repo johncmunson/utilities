@@ -16,33 +16,84 @@ var _ = { };
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
   _.first = function(array, n) {
+    if (!Boolean(n)) {
+        return array[0];
+    }
+    if (n >= array.length) {
+        return array;
+    } else {
+        return array.slice(0, n);
+    }
   };
 
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if (!Boolean(n)) {
+        return array[array.length - 1];
+    }
+    if (n >= array.length) {
+        return array;
+    }
+    return array.slice(-n);
   };
 
   // Call iterator(value, key, collection) for each element of collection.
   // Accepts both arrays and objects.
+
   _.each = function(collection, iterator) {
+    var elements = [];
+    for (var prop in collection) {
+        elements.push(iterator.call(this, collection[prop], prop, collection));
+    }
+    return elements;
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
   // is not present in the array.
   _.indexOf = function(array, target){
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === target) {
+            return i;
+        }
+    }
+    return -1;
   };
 
   // Return all elements of an array that pass a truth test ('iterator' function argument)
   _.filter = function(collection, iterator) {
+    var elements = [];
+    for (var i = 0; i < collection.length; i++) {
+        if (iterator.call(this, collection[i])) {
+            elements.push(collection[i]);
+        }
+    }
+    return elements;
   };
+
 
   // Return all elements of an array that don't pass a truth test (the 'iterator' function argument)
   _.reject = function(collection, iterator) {
+    var elements = [];
+    for (var i = 0; i < collection.length; i++) {
+        if (!iterator.call(this, collection[i])) {
+            elements.push(collection[i]);
+        }
+    }
+    return elements;
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+    for (var i = 0; i < array.length; i++) {
+        for (var t = i + 1; t < array.length; t++) {
+            if (array[t] === array[i]) {
+                array.splice(t, 1);
+                t--;
+            }
+        }
+    }
+    return array;
   };
 
 
