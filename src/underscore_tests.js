@@ -199,6 +199,14 @@ var _ = { };
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for (var i = 1; i < arguments.length; i++) {
+        for (var prop in arguments[i]) {
+            if (!obj.hasOwnProperty(prop)) {
+                obj[prop] = arguments[i][prop];
+            }
+        }
+    }
+    return obj;
   };
 
 
@@ -210,6 +218,19 @@ var _ = { };
   // Return a function that can be called at most one time. Subsequent calls
   // should return the previously returned value.
   _.once = function(func) {
+    // Don't understand memo = func.apply(this, arguments);
+    // Don't understand func = null;
+    var ran = false;
+    var memo;
+    return function() {
+        if (ran) {
+            return memo;
+        }
+        ran = true;
+        memo = func.apply(this, arguments);
+        func = null;
+        return memo;
+    }
   };
 
   // Memoize an expensive function by storing its results. You may assume
@@ -219,6 +240,7 @@ var _ = { };
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -234,6 +256,12 @@ var _ = { };
 
   // Shuffle an array.
   _.shuffle = function(array) {
+    var copy = [], n = array.length, i;
+    while (n) {
+        i = Math.floor(Math.random() * n--);
+        copy.push(array.splice(i, 1)[0]);
+    }
+    return copy;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -241,6 +269,7 @@ var _ = { };
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -254,7 +283,20 @@ var _ = { };
   // Takes a multidimensional array and converts it to a one-dimensional array.
   // The new array should contain all elements of the multidimensional array.
   _.flatten = function(nestedArray, result) {
+    var flatArray = [];
+    function smash(array) {
+        for (var i = 0; i < array.length; i++) {
+            if (Array.isArray(array[i])) {
+                smash(array[i]);
+            } else {
+                flatArray.push(array[i]);
+            }
+        }
+    }
+    smash(nestedArray);
+    return flatArray;
   };
+
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
