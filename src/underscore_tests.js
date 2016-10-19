@@ -44,7 +44,7 @@ var _ = { };
   _.each = function(collection, iterator) {
     var elements = [];
     for (var prop in collection) {
-        elements.push(iterator.call(this, collection[prop], prop, collection));
+        elements.push(iterator(collection[prop], prop, collection));
     }
     return elements;
   };
@@ -99,12 +99,25 @@ var _ = { };
 
   // Return the results of applying an iterator to each element.
   _.map = function(array, iterator) {
+    var elements = [];
+    for (var i = 0; i < array.length; i++) {
+        elements.push(iterator(array[i]));
+    }
+    return elements;
   };
 
-  // Takes an array of objects and returns and array of the values of
+
+  // Takes an array of objects and returns an array of the values of
   // a certain property in it. E.g. take an array of people and return
   // an array of just their ages
   _.pluck = function(array, propertyName) {
+    var elements = [];
+    for (var i = 0; i < array.length; i++) {
+        if (array[i][propertyName]) {
+            elements.push(array[i][propertyName]);
+        }
+    }
+    return elements;
   };
 
   // Calls the method named by methodName on each value in the list.
@@ -115,20 +128,52 @@ var _ = { };
   // iterator(previousValue, item) for each item. previousValue should be
   // the return value of the previous iterator call.
   _.reduce = function(collection, iterator, initialValue) {
+    var value = 0;
+    if (initialValue) {
+        value = initialValue;
+    }
+    for (var i = 0; i < collection.length; i++) {
+        value = iterator(value, collection[i]);
+    }
+    return value;
   };
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
+    for (var prop in collection) {
+        if (collection[prop] === target) {
+            return true;
+        }
+    }
+    return false;
   };
 
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
+    if (!iterator){
+        return true;
+    }
+    for (var i = 0; i < collection.length; i++) {
+        if (!iterator(collection[i])) {
+            return false;
+        }
+    }
+    return true;
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
+    if (!iterator) {
+        var iterator = Boolean;
+    }
+    for (var i = 0; i < collection.length; i++) {
+        if (iterator(collection[i])) {
+            return true;
+        }
+    }
+    return false;
   };
 
 
@@ -142,7 +187,14 @@ var _ = { };
   // Extend a given object with all the properties of the passed in
   // object(s).
   _.extend = function(obj) {
+    for (var i = 1; i < arguments.length; i++) {
+        for (var prop in arguments[i]) {
+            obj[prop] = arguments[i][prop];
+        }
+    }
+    return obj;
   };
+
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
